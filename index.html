@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funciones SQL de una sola fila en videojuegos - Bastián Cerda</title>
+    <!-- Fuentes estilo clásico/vintage -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            /* Fondo verde con textura de lunares estilo Vintage Diary */
+            background-color: #79ab9f;
+            background-image: radial-gradient(#95c4b9 15%, transparent 16%),
+                              radial-gradient(#95c4b9 15%, transparent 16%);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            font-family: 'Lora', Georgia, serif;
+            color: #4a4a4a;
+            line-height: 1.6;
+            padding: 30px 15px;
+        }
+
+        .page-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fbfbf9;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #d3cfc7;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            background: #f7f6f0;
+            border-bottom: 2px dashed #d9d4c7;
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #3f3f3f;
+            margin-bottom: 5px;
+        }
+
+        header p.tagline {
+            font-style: italic;
+            color: #8c827a;
+            font-size: 0.95rem;
+        }
+
+        nav {
+            background: #e27d60;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
+            font-weight: bold;
+            margin: 0 15px;
+            text-transform: uppercase;
+        }
+
+        nav a:hover {
+            color: #ffd8cc;
+        }
+
+        .content-wrapper {
+            display: flex;
+            padding: 30px;
+            gap: 25px;
+        }
+
+        main {
+            flex: 2.2;
+        }
+
+        aside {
+            flex: 1;
+            border-left: 1px solid #eae5dc;
+            padding-left: 20px;
+        }
+
+        .post-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.7rem;
+            color: #3b3b3b;
+            margin-bottom: 6px;
+        }
+
+        .post-meta {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 6px;
+        }
+
+        .post-intro {
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+
+        h2.section-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            color: #333;
+            margin: 24px 0 10px;
+            border-bottom: 1px solid #ded8ce;
+            padding-bottom: 4px;
+        }
+
+        p {
+            margin-bottom: 14px;
+            font-size: 0.92rem;
+            text-align: justify;
+        }
+
+        pre {
+            background: #f2eee6;
+            border-left: 4px solid #e27d60;
+            padding: 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82rem;
+            color: #2b2b2b;
+            overflow-x: auto;
+            margin: 12px 0 16px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            background: #ede8df;
+            padding: 2px 4px;
+            font-size: 0.82rem;
+            border-radius: 3px;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        blockquote {
+            background: #f9f6f0;
+            border-left: 3px solid #79ab9f;
+            margin: 16px 0;
+            padding: 10px 14px;
+            font-style: italic;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.83rem;
+        }
+
+        table th, table td {
+            border: 1px solid #ded9ce;
+            padding: 6px 8px;
+            text-align: left;
+        }
+
+        table th {
+            background: #eee8de;
+            color: #4f4b46;
+            font-family: 'Playfair Display', serif;
+        }
+
+        table tr:nth-child(even) {
+            background: #f8f6f2;
+        }
+
+        .sidebar-widget {
+            margin-bottom: 24px;
+        }
+
+        .widget-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            color: #e27d60;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #d6cebe;
+            padding-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .widget-title::after {
+            content: "✿";
+            color: #e27d60;
+        }
+
+        .sidebar-widget ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-widget li {
+            padding: 5px 0;
+            border-bottom: 1px dotted #e5e0d8;
+            font-size: 0.82rem;
+        }
+
+        .sidebar-widget a {
+            color: #555;
+            text-decoration: none;
+        }
+
+        .sidebar-widget a:hover {
+            color: #e27d60;
+        }
+
+        footer {
+            background: #eeeae1;
+            border-top: 1px solid #ded8ce;
+            padding: 15px;
+            text-align: center;
+            font-size: 0.78rem;
+            color: #8c827a;
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                flex-direction: column;
+                padding: 18px;
+            }
+            aside {
+                border-left: none;
+                border-top: 1px solid #eae5dc;
+                padding-left: 0;
+                padding-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-container">
+    <header>
+        <h1>Vintage Diary</h1>
+        <p class="tagline">Bitácora de clases y apuntes de código de Bastián Cerda</p>
+    </header>
+
+    <nav>
+        <a href="#">Inicio</a>
+        <a href="#">Bases de Datos</a>
+        <a href="#">Juegos</a>
+        <a href="#">Sobre mí</a>
+    </nav>
+
+    <div class="content-wrapper">
+        <main>
+            <article>
+                <h1 class="post-title">Funciones SQL de una sola fila en videojuegos: daño y balance</h1>
+                <div class="post-meta">Por Bastián Cerda &bull; Estudiante de 1er año de Informática &bull; Apuntes de clase</div>
+
+                <p class="post-intro">
+                    ¡Hola! Estos son mis apuntes resumiendo cómo aplicar funciones de una sola fila en SQL. La idea principal es simple: <strong>una función de una sola fila recibe un dato de una fila y devuelve un único resultado para esa misma fila</strong> (a diferencia de <code>SUM</code> o <code>COUNT</code>, que mezclan todo).
+                </p>
+
+                <blockquote>
+                    Regla de oro: 1 fila de entrada = 1 fila de salida modificada.
+                </blockquote>
+
+                <h2 class="section-header">1. Evitar vida negativa o daño cero (GREATEST)</h2>
+                <p>
+                    Cuando atacas a un enemigo con mucha armadura, la resta simple puede dar números negativos (y terminaría curándolo). Con <code>GREATEST</code> nos aseguramos de que el daño mínimo sea 1 y que la vida nunca baje de 0 HP.
+                </p>
+
+                <pre><code>SELECT 
+    id_jugador,
+    -- Daño mínimo garantizado de 1
+    GREATEST(1, danio_base - armadura) AS danio_real,
+    -- La vida nunca queda en números negativos
+    GREATEST(0, vida_actual - GREATEST(1, danio_base - armadura)) AS vida_final
+FROM combate;</code></pre>
+
+                <h2 class="section-header">2. Poner límite a la armadura (LEAST)</h2>
+                <p>
+                    Si un jugador equipa demasiada defensa, podría llegar al 100% de resistencia y ser inmortal. Con <code>LEAST</code> le ponemos un tope máximo (un *cap* del 75%):
+                </p>
+
+                <pre><code>SELECT 
+    id_jugador,
+    -- Mitiga máximo 0.75 (75%), aunque tenga más armadura
+    LEAST(0.75, defensa * 0.01) AS mitigacion,
+    ROUND(danio_entrante * (1 - LEAST(0.75, defensa * 0.01)), 0) AS danio_recibido
+FROM jugadores;</code></pre>
+
+                <h2 class="section-header">3. Redondear el daño en pantalla</h2>
+                <p>
+                    Como los motores de juego no muestran decimales en las barras de vida, usamos funciones matemáticas según cómo queramos balancear:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Función</th>
+                            <th>Qué hace</th>
+                            <th>Efecto en el juego</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>ROUND(x)</code></td>
+                            <td>Redondeo normal</td>
+                            <td>El más justo para pruebas generales.</td>
+                        </tr>
+                        <tr>
+                            <td><code>FLOOR(x)</code></td>
+                            <td>Hacia abajo</td>
+                            <td>Favorece al que se defiende.</td>
+                        </tr>
+                        <tr>
+                            <td><code>CEIL(x)</code></td>
+                            <td>Hacia arriba</td>
+                            <td>Favorece al atacante (asegura daño residual).</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2 class="section-header">4. Evitar que un valor vacío rompa el cálculo (COALESCE)</h2>
+                <p>
+                    Si un arma no tiene crítico y su valor es <code>NULL</code>, la multiplicación en SQL da error o queda en blanco. Con <code>COALESCE</code> ponemos un valor neutro por si acaso:
+                </p>
+
+                <pre><code>SELECT 
+    id_arma,
+    -- Si multiplicador es NULL, usa 1.0 para no romper el cálculo
+    ROUND(danio_base * COALESCE(multiplicador_critico, 1.0), 0) AS danio_total
+FROM armas;</code></pre>
+
+                <h2 class="section-header">Conclusión: Mi opinión personal</h2>
+                <p>
+                    Al principio pensé que SQL solo servía para guardar listas estáticas de datos, pero aplicarlo a mecánicas de juegos me cambió la perspectiva por completo.
+                </p>
+                <p>
+                    Las funciones escalares te ahorran dolores de cabeza enormes: evitan que un enemigo se cure por culpa de una armadura mal calculada, frenan a los jugadores que buscan hacerse inmortales y limpian los decimales de la interfaz en una sola línea. Probar estas fórmulas directamente en la base de datos es la forma más rápida y limpia de balancear números sin tener que compilar el juego una y otra vez.
+                </p>
+            </article>
+        </main>
+
+        <aside>
+            <div class="sidebar-widget">
+                <h3 class="widget-title">Sobre el autor</h3>
+                <p style="font-size: 0.85rem; color: #666;">
+                    Blog y apuntes de <strong>Bastián Cerda</strong>, estudiante de primer año de Ingeniería en Informática. Documentando consultas SQL y conceptos de videojuegos.
+                </p>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3 class="widget-title">Funciones vistas</h3>
+                <ul>
+                    <li><code>GREATEST()</code>: Fija un piso mínimo</li>
+                    <li><code>LEAST()</code>: Fija un tope máximo</li>
+                    <li><code>ROUND() / FLOOR()</code>: Quita decimales</li>
+                    <li><code>COALESCE()</code>: Resuelve valores NULL</li>
+                </ul>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3 class="widget-title">Materias</h3>
+                <ul>
+                    <li><a href="#">Base de Datos Relacionales</a></li>
+                    <li><a href="#">Modelado de Tablas</a></li>
+                    <li><a href="#">Lógica de Programación</a></li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Vintage Diary &bull; Blog de Bastián Cerda</p>
+    </footer>
+</div>
+
+</body>
+</html>
